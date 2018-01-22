@@ -1,0 +1,51 @@
+body, input {
+    text-align: center;
+    font-family: Helvetica;
+    text-transform: uppercase;
+    background-color: #faebd7;
+}
+
+@keyframes fadeIn {
+    0% {opacity: 0;}
+    100% {opacity: 0.8;}
+}
+
+.fade-in {
+	animation-name: fadeIn;
+}
+
+.overlay-screen {
+	position: relative;
+    width: 404px;
+	height: 303px;
+	top: -470px;
+	background-color: #000;
+	opacity: 0.8;
+	border-radius: 25px;
+	animation-duration: 3s;
+	color: white;
+	margin: 0 auto;
+	padding: 5px;
+}
+
+.start-button {
+	background-color: #cecece;
+	font-size: 20px;
+	border: none;
+	border-radius: 25px;
+	color: black;
+	padding: 16px;
+}
+
+.box {
+	width: 505px;
+	margin: 0 auto;
+	padding: 16px;
+	background-color: #ffdab9;
+	border-radius: 25px;
+}
+
+.text-lower {
+	text-transform: lowercase;
+}
+
