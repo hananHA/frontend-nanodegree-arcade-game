@@ -1,9 +1,9 @@
 // By : Hanan Alahmadi
 
 // Variables declarations
-var enemies = ['images/enemy-car-1.png', 'images/enemy-car-2.png', 'images/enemy-car-3.png'];
+var ENEMIES = ['images/enemy-car-1.png', 'images/enemy-car-2.png', 'images/enemy-car-3.png'];
 
-var gems = ['images/gem-green.png', 'images/gem-red.png', 'images/diamond-blue.png'];
+var GEMS = ['images/gem-green.png', 'images/gem-red.png', 'images/diamond-blue.png'];
 
 // Initializing the player position
 var playerStartPos = {
@@ -28,20 +28,16 @@ var gemWidth = 50;
 var starWidth = 45;
 var heartWidth = 45;
 
-var score = 0;
-var heart = 3;
-
 var lost = false;
 
 var collected = false;
-
 
 // Enemies our player must avoid - Enemy class
 var Enemy = function(sprite, startRow) {
     // Variables applied to each of our instances go here
     this.sprite = sprite;
     this.x = enemyStartPos.x;
-    this.y = (startRow * 83) - (rowHeight / 2);  
+    this.y = (startRow * rowHeight) - (rowHeight / 2);  
     this.startCol = 1;
     this.row = enemyStartPos.startRow;
     this.speed = randomInt(50, 200);
@@ -68,12 +64,14 @@ Enemy.prototype.update = function(dt) {
 
 
 // Player class
-var Player = function() {
+var Player = function(score, heart) {
     this.sprite = 'images/char-cat.png';
     this.x = playerStartPos.x;
     this.y = playerStartPos.y - (rowHeight / 2);
     this.col = playerStartPos.startCol;
     this.row = playerStartPos.startRow;
+    this.score = score;
+    this.heart = heart;
 };
 
 // Player render function
@@ -81,25 +79,30 @@ Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
+Player.prototype.move = function(input) {
+
+    if(input === 'up'){
+        this.y -= rowHeight;
+        this.row--;
+    }else if(input === 'down'){
+        this.y += rowHeight;
+        this.row++;
+    }else if(input === 'right'){
+        this.x += colWidth;
+        this.col++;
+    }else if(input === 'left'){
+        this.x -= colWidth;
+        this.col--;
+    }
+}
+
 // Player update function
-Player.prototype.update = function(input) {
+Player.prototype.update = function() {
 
     // Update the player's x and y values unless the player lost the game
     if(!lost) {
 
-        if(input === 'up'){
-            this.y -= rowHeight;
-            this.row--;
-        }else if(input === 'down'){
-            this.y += rowHeight;
-            this.row++;
-        }else if(input === 'right'){
-            this.x += colWidth;
-            this.col++;
-        }else if(input === 'left'){
-            this.x -= colWidth;
-            this.col--;
-        }
+        this.move(); 
 
         // Not letting the player go out of the canvas
         var downBorder = (rowHeight * 6) - (rowHeight / 2);
@@ -114,7 +117,7 @@ Player.prototype.update = function(input) {
             this.x = playerStartPos.x;
             this.y = playerStartPos.y - (rowHeight / 2);
             // Updating the score when reaching the top row
-            score++;
+            this.score++;
         }
         if(this.x >= rightBorder){
             this.x = rightBorder;
@@ -137,11 +140,11 @@ Player.prototype.collision = function(){
             meow.play();
             this.x = playerStartPos.x;
             this.y = playerStartPos.y - (rowHeight / 2);
-            if(heart <= 0){
+            if(this.heart <= 0){
                 gameOver();
                 lost = true;
             }else {
-                heart--;
+                this.heart--;
                 gameStart();
             }
         }
@@ -154,21 +157,21 @@ Player.prototype.collision = function(){
         gemCollected.play();
         if(collected) {
             switch(newGem.sprite) {
-                case gems[0]:
-                    score += 10;
+                case GEMS[0]:
+                    this.score += 10;
                     newGem.update(randomInt(0, 4), randomInt(1, 3));
-                    newGem.sprite = gems[1];
+                    newGem.sprite = GEMS[1];
                 break;
-                case gems[1]:
-                    score += 20;
+                case GEMS[1]:
+                    this.score += 20;
                     newGem.update(randomInt(0, 4), randomInt(1, 3));
-                    newGem.sprite = gems[2];
+                    newGem.sprite = GEMS[2];
                 break;
-                case gems[2]:
-                    score += 30;
-                    heart++;
+                case GEMS[2]:
+                    this.score += 30;
+                    this.heart++;
                     newGem.update(randomInt(0, 4), randomInt(1, 3));
-                    newGem.sprite = gems[0];
+                    newGem.sprite = GEMS[0];
                 break;
             }
         }
@@ -180,23 +183,23 @@ Player.prototype.collision = function(){
 Player.prototype.handleInput = function(input) {
     switch(input){
         case 'up':
-            player.update('up');
+            this.move('up');
             break;
         case 'down':
-            player.update('down');
+            this.move('down');
             break;
         case 'right':
-            player.update('right');
+            this.move('right');
             break;
         case 'left':
-            player.update('left');
+            this.move('left');
             break;
         }
 };
 
 // Additional: Gem class
 var Gem = function(col, row) {
-    this.sprite = gems[0];
+    this.sprite = GEMS[0];
     this.col = col;
     this.row = row;
     this.x = col * 101;
@@ -225,12 +228,12 @@ function randomInt(min, max){
 
 // Update score counter function
 function updateScore() {
-    ctx.fillText(score, starWidth + 10, 30);
+    ctx.fillText(player.score, starWidth + 10, 30);
 }
 
 // Update hearts counter function
 function updateHeart() {
-    ctx.fillText(heart, 460 - heartWidth, 30);
+    ctx.fillText(player.heart, 460 - heartWidth, 30);
 }
 
 // To show the score, a message and a button to restart the game when the player lose
@@ -243,25 +246,26 @@ var gameOver = function() {
     var HTMLGameOver = '<h1>Game Over</h1>';
     $('.overlay-screen').append(HTMLGameOver);
     var HTMLStarImg = '<img id="starImg" width="45" height="45" src="images/star.png">';
-    if(score === 0) {
+    if(player.score === 0) {
         var HTMLMessage = '<P id="message">oops! try again</p>';
         $('.overlay-screen').append(HTMLMessage);
-    }else if(0 < score && score <= 100) {
+    }else if(0 < player.score && player.score <= 100) {
         var HTMLMessage1 = '<P id="message">good job!</p>';
         $('.overlay-screen').append(HTMLMessage1 + HTMLStarImg);
-    }else if(100 < score && score <= 200) {
+    }else if(100 < player.score && player.score <= 200) {
         var HTMLMessage2 = '<P id="message">excellent!</p>';
         $('.overlay-screen').append(HTMLMessage2 + HTMLStarImg + HTMLStarImg);
-    }else if(score > 200) {
+    }else if(player.score > 200) {
         var HTMLMessage3 = '<P id="message">marvelous!</p>';
         $('.overlay-screen').append(HTMLMessage3 + HTMLStarImg + HTMLStarImg + HTMLStarImg);
     }
-    var HTMLScore = '<p id="score">Your score is :   <span>'+score+'</span></p>';
+    var HTMLScore = '<p id="score">Your score is :   <span>'+player.score+'</span></p>';
     var HTMLRestartBtn = '<input id="restartBtn" class="start-button" type="button" value="Restart" />';
     $('.overlay-screen').append(HTMLScore + HTMLRestartBtn);
     $(".start-button").click(function(){
         lost = false;
-        score = 0;
+        player.score = 0;
+        player.heart = 3;
         $('.overlay-screen').empty();
         $('.overlay-screen').hide();
         bgMusic.play();
@@ -273,10 +277,11 @@ var gameOver = function() {
 // For restarting the game
 function gameStart(){
     allEnemies = [];
-    for(var i = 0; i < enemies.length; i++){
-    allEnemies.push(new Enemy(enemies[i], randomInt(1, 3)));
+    for(var i = 0; i < ENEMIES.length; i++){
+    allEnemies.push(new Enemy(ENEMIES[i], randomInt(1, 3)));
     }
-    var player = new Player();
+    // 0 score, 3 hearts
+    var player = new Player(0, 3);
 
     var newGem = new Gem(randomInt(0, 4), randomInt(1, 3));
 }
@@ -284,12 +289,13 @@ function gameStart(){
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 var allEnemies = [];
-for(var i = 0; i < enemies.length; i++){
-allEnemies.push(new Enemy(enemies[i], randomInt(1, 3)));
+for(var i = 0; i < ENEMIES.length; i++){
+allEnemies.push(new Enemy(ENEMIES[i], randomInt(1, 3)));
 }
 
 // Place the player object in a variable called player
-var player = new Player();
+// 0 score, 3 hearts
+var player = new Player(0, 3);
 
 // Gem object
 var newGem = new Gem(randomInt(0, 4), randomInt(1, 3));

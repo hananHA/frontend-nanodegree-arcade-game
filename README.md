@@ -1,4 +1,4 @@
-#frontend-nanodegree-arcade-game
+frontend-nanodegree-arcade-game
 ===============================
 
 Developed by: Hanan Alahmadi
@@ -8,13 +8,13 @@ This project is to test my ability to write codes in **javaScript**, and it's fo
 It's a simple game that allows the user to help the cat to get safely to the other side by avoiding the cars and collecting gems on the way.
 
 
-##How To Run
+How To Run
 ===============================
 - Open the file.
 - Look for index.html and open it in the prowser.
 - Now you will be able to play the game.
 
-##How To Play
+How To Play
 ===============================
 1. You will start with 3 hearts to play.
 1. By using the four arrows in your keyboard, move the cat up, down, left and right.
